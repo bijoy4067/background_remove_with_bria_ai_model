@@ -24,7 +24,9 @@ python3 -m venv venv
 source venv/bin/activate
 
 # Install rembg and dependencies
-pip install rembg
+pip install "rembg[cpu,cli]"
+
+# pip install onnxruntime-cpu
 
 # Deactivate when done
 deactivate

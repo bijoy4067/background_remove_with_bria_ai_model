@@ -54,7 +54,7 @@ class ImageController extends Controller
         // Use virtual environment's Python with correct path
         $venvPath = base_path('venv/bin/');
         $command = "cd {$venvPath} && ./python rembg i \"{$inputPath}\" \"{$outputPath}\" 2>&1";
-        
+
         $output = shell_exec($command);
         
         if (!file_exists($outputPath)) {
