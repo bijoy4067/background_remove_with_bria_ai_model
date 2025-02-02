@@ -45,38 +45,22 @@ class ImageController extends Controller
 
     private function processImage($path, $fileName)
     {
-        // Use GD driver instead of ImageMagick
-        Transformers::setup()->setImageDriver(\Codewithkyrian\Transformers\Utils\ImageDriver::GD);
-
         $inputPath = storage_path('app/public/' . $path);
         $outputPath = storage_path('app/public/processed/' . $fileName);
 
         // Ensure the processed directory exists
         Storage::disk('public')->makeDirectory('processed');
 
-        $url = Storage::disk('public')->path($path);
+        // Use virtual environment's Python with correct path
+        $venvPath = base_path('venv/bin/');
+        $command = "cd {$venvPath} && ./python rembg i \"{$inputPath}\" \"{$outputPath}\" 2>&1";
+        
+        $output = shell_exec($command);
+        
+        if (!file_exists($outputPath)) {
+            throw new \Exception('Failed to process image: ' . $output);
+        }
 
-        $model = AutoModel::fromPretrained('briaai/RMBG-1.4');
-        $processor = AutoProcessor::fromPretrained('briaai/RMBG-1.4');
-
-        $image = Image::read($url);
-
-        ['pixel_values' => $pixelValues] = $processor($image);
-
-        ['output' => $output] = $model(['input' => $pixelValues]);
-
-        $mask = Image::fromTensor($output[0]->multiply(255))
-            ->resize($image->width(), $image->height());
-
-        $maskedName = pathinfo($path, PATHINFO_FILENAME) . '_masked';
-        $maskedPath = "processed/$maskedName.png";  // Changed from "images" to "processed"
-
-        // Ensure the directory exists
-        Storage::disk('public')->makeDirectory(dirname($maskedPath));
-
-        $maskedImage = $image->applyMask($mask);
-        $maskedImage->save(Storage::disk('public')->path($maskedPath));
-
-        return $maskedPath;
+        return 'processed/' . $fileName;
     }
 }
