@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  swoole:
+    container_name: yosuite-hr
+    hostname: hr.yosuite.ai
+    build:
+      context: ./
+      target: development
+    restart: unless-stopped
+    volumes:
+      - .:/home/swoole/
+      # - ./vendor:/home/swoole/vendor
+      # - ./app:/home/swoole/app
+      # - ./storage:/home/swoole/storage
+      # - ./packages:/home/swoole/packages
+      # - ./Modules:/home/swoole/Modules
+    # networks:
+      # - yosuite-network
+    ports:
+      - 8886:80
+    environment:  
+      CHOKIDAR_USEPOLLING: 'true'
+
+# networks:
+#   yosuite-network:
+#     external: true
