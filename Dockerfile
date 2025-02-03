@@ -35,8 +35,6 @@ RUN set -ex && \
         build-base && \
     pecl channel-update pecl.php.net && \
     pecl install --configureoptions 'enable-redis-igbinary="no" enable-redis-lzf="no" enable-redis-zstd="no"' redis-6.0.2 && \
-    pecl install mongodb && \
-    docker-php-ext-enable mongodb && \
     docker-php-ext-enable redis && \
     docker-php-ext-install sockets && \
     docker-php-ext-install bcmath && \
