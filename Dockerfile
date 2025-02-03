@@ -83,11 +83,16 @@ USER swoole
 COPY --chown=swoole:swoole composer.json ./
 COPY --chown=swoole:swoole composer.lock ./
 
-RUN composer install
-RUN composer dump-autoload
+# Setup database
+RUN mkdir -p /home/swoole/database && \
+    touch /home/swoole/database/database.sqlite && \
+    chown -R swoole:swoole /home/swoole/database && \
+    chmod -R 775 /home/swoole/database
 
-RUN composer clear-cache
-RUN php artisan cache:clear
+# Then continue with your artisan commands
+RUN composer install && \
+    php artisan migrate --force && \
+    php artisan cache:clear
 
 CMD [ "php", "artisan", "octane:start",  "--watch",  "--host=0.0.0.0", "--port=80" ]
 
