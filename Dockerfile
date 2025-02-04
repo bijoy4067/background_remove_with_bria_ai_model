@@ -2,39 +2,15 @@ FROM php:8.3.2-cli-alpine3.18 as base
 
 COPY --from=composer:2.6.6 /usr/bin/composer /usr/bin/
 
-# Install PHP and Python dependencies
-RUN set -ex && \
+RUN \
+    set -ex && \
     apk update && \
-    apk add --no-cache \
-        libstdc++ \
-        libpq \
-        libpng-dev \
-        libjpeg-turbo-dev \
-        libgomp \
-        libffi-dev \
-        zlib-dev \
-        jpeg-dev \
-        freetype-dev \
-        libxml2-dev \
-        libzip-dev \
-        oniguruma-dev \
-        git \
-        unzip && \
-    apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS \
-        curl-dev \
-        linux-headers \
-        openssl-dev \
-        pcre-dev \
-        pcre2-dev \
-        zlib-dev \
-        autoconf \
-        g++ \
-        make \
-        cmake \
-        build-base && \
+    apk add --no-cache libstdc++ libpq libpng-dev libjpeg-turbo-dev && \
+    apk add --no-cache --virtual .build-deps $PHPIZE_DEPS curl-dev linux-headers openssl-dev pcre-dev pcre2-dev zlib-dev && \
     pecl channel-update pecl.php.net && \
     pecl install --configureoptions 'enable-redis-igbinary="no" enable-redis-lzf="no" enable-redis-zstd="no"' redis-6.0.2 && \
+    pecl install mongodb && \
+    docker-php-ext-enable mongodb && \
     docker-php-ext-enable redis && \
     docker-php-ext-install sockets && \
     docker-php-ext-install bcmath && \
@@ -74,29 +50,22 @@ FROM base as development
 
 # Install npm and the project dependencies
 RUN apk add --no-cache npm
+RUN npm i
 
-# Switch to swoole user
+# Run the development server as the swoole user
 USER swoole
+
 # Install composer dependencies
 COPY --chown=swoole:swoole composer.json ./
 COPY --chown=swoole:swoole composer.lock ./
-# Install dependencies before copying rest of the project
+
 RUN composer install
+RUN composer dump-autoload
 
-# Now copy the rest of the project
-COPY --chown=swoole:swoole ./ ./
+RUN composer clear-cache
+RUN php artisan cache:clear
 
-# Setup database
-RUN mkdir -p /home/swoole/database && \
-    touch /home/swoole/database/database.sqlite && \
-    chmod -R 775 /home/swoole/database && \
-    composer dump-autoload && \
-    php artisan migrate --force && \
-    php artisan cache:clear
-
-RUN npm i
-
-CMD [ "php", "artisan", "octane:start", "--watch", "--host=0.0.0.0", "--port=8080" ]
+CMD [ "php", "artisan", "octane:start",  "--watch",  "--host=0.0.0.0", "--port=80" ]
 
 # Production image
 FROM base as production
