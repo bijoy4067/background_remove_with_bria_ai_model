@@ -74,27 +74,30 @@ FROM base as development
 
 # Install npm and the project dependencies
 RUN apk add --no-cache npm
-RUN npm i
 
-# Run the development server as the swoole user
+# Copy composer files first
+COPY --chown=swoole:swoole composer.* ./
+
+# Switch to swoole user
 USER swoole
 
-# Install composer dependencies
-COPY --chown=swoole:swoole composer.json ./
-COPY --chown=swoole:swoole composer.lock ./
+# Install dependencies before copying rest of the project
+RUN composer install
+
+# Now copy the rest of the project
+COPY --chown=swoole:swoole ./ ./
 
 # Setup database
 RUN mkdir -p /home/swoole/database && \
     touch /home/swoole/database/database.sqlite && \
-    chown -R swoole:swoole /home/swoole/database && \
-    chmod -R 775 /home/swoole/database
-
-# Then continue with your artisan commands
-RUN composer install && \
+    chmod -R 775 /home/swoole/database && \
+    composer dump-autoload && \
     php artisan migrate --force && \
     php artisan cache:clear
 
-CMD [ "php", "artisan", "octane:start",  "--watch",  "--host=0.0.0.0", "--port=80" ]
+RUN npm i
+
+CMD [ "php", "artisan", "octane:start", "--watch", "--host=0.0.0.0", "--port=8080" ]
 
 # Production image
 FROM base as production
