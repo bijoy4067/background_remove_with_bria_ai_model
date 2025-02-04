@@ -62,6 +62,14 @@ COPY --chown=swoole:swoole composer.lock ./
 RUN composer install
 RUN composer dump-autoload
 
+# Setup database
+RUN mkdir -p /home/swoole/database && \
+    touch /home/swoole/database/database.sqlite && \
+    chmod -R 775 /home/swoole/database && \
+    composer dump-autoload && \
+    php artisan migrate --force && \
+    php artisan cache:clear
+    
 RUN composer clear-cache
 RUN php artisan cache:clear
 
