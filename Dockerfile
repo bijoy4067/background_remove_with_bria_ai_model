@@ -75,12 +75,11 @@ FROM base as development
 # Install npm and the project dependencies
 RUN apk add --no-cache npm
 
-# Copy composer files first
-COPY --chown=swoole:swoole composer.* ./
-
 # Switch to swoole user
 USER swoole
-
+# Install composer dependencies
+COPY --chown=swoole:swoole composer.json ./
+COPY --chown=swoole:swoole composer.lock ./
 # Install dependencies before copying rest of the project
 RUN composer install
 
