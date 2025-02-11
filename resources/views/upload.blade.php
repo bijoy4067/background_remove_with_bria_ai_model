@@ -78,7 +78,16 @@
             document.getElementById('downloadBtn').classList.remove('d-none');
             document.getElementById('submitBtn').classList.add('d-none'); // Hide submit button
             document.getElementById('downloadBtn').addEventListener('click', function() {
-                fetch(data.downloadUrl)
+                fetch(data.downloadUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fileName: data.fileName
+                    })
+                })
                     .then(response => {
                         if (!response.ok) {
                             return response.json().then(err => Promise.reject(err));
@@ -95,7 +104,9 @@
                         document.body.removeChild(a);
                         window.URL.revokeObjectURL(url);
                         this.classList.add('d-none');
-                        document.getElementById('submitBtn').classList.remove('d-none'); // Show submit button again
+                        document.getElementById('submitBtn').classList.remove('d-none');
+                        // Reset file input
+                        document.querySelector('input[type="file"]').value = '';
                     })
                     .catch(error => {
                         document.getElementById('errorMessage').textContent = error.error;

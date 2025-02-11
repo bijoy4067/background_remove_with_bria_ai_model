@@ -36,6 +36,7 @@ pip install --no-cache-dir onnxruntime
 
 # Install rembg and dependencies
 pip install "rembg[cpu,cli]"
+# pip install pngquant, imghdr
 rembg i -m birefnet-general-lite "/home/devesnns/location-api.developer-bijoy.com/background_remove_with_bria_ai_model/storage/app/public/uploads/59a2c58f-878e-4278-a306-29e139946ba0.jpeg" "/home/devesnns/location-api.developer-bijoy.com/background_remove_with_bria_ai_model/storage/app/public/processed/59a2c58f-878e-4278-a306-29e139946ba0.jpeg" 2>&1
 
 TMPDIR=$HOME/ffmpeg_tmp PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --pkg-config-flags="--static" --extra-cflags="-I$HOME/ffmpeg_build/include" --extra-ldflags="-L$HOME/ffmpeg_build/lib" --extra-libs="-lpthread -lm" --bindir="$HOME/bin" --enable-gpl --enable-gnutls --enable-libaom --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame --enable-libopus --enable-libsvtav1 --enable-libdav1d --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree && PATH="$HOME/bin:$PATH" make && make install && hash -r
