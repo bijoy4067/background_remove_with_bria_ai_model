@@ -7,11 +7,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
-use Codewithkyrian\Transformers\Transformers;
-use Codewithkyrian\Transformers\Models\Auto\AutoModel;
-use Codewithkyrian\Transformers\Processors\AutoProcessor;
-use Codewithkyrian\Transformers\Utils\Image;
-
 class ImageController extends Controller
 {
     public function index()
